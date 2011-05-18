@@ -47,6 +47,8 @@ def sendNZB(nzb):
     for curEp in nzb.episodes:
         if datetime.date.today() - curEp.airdate <= datetime.timedelta(days=7):
             params['priority'] = 1
+        if curEp.show.downloadPriority <> 0:
+            params['priority'] = curEp.show.downloadPriority
 
     # if it's a normal result we just pass SAB the URL
     if nzb.resultType == "nzb":

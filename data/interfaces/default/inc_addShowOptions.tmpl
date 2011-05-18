@@ -25,8 +25,17 @@
         #set global $anyQualities = $qualities[0]
         #set global $bestQualities = $qualities[1]
         #include $os.path.join($sickbeard.PROG_DIR, "data/interfaces/default/inc_qualityChooser.tmpl")
-
-        <div class="field-pair alt">
+		
+		<div class="field-pair alt">
+            <label for="prioritySelect" class="nocheck clearfix">
+                <span class="component-title">
+                    <select name="downloadPriority" id="prioritySelect"></select>
+                </span>
+                <span class="component-desc">Set the download priority for the show</span>
+            </label>
+        </div>
+        
+        <div class="field-pair">
             <label for="saveDefaultsButton" class="nocheck clearfix">
                 <span class="component-title"><input type="button" id="saveDefaultsButton" value="Save Defaults" disabled="disabled" /></span>
                 <span class="component-desc">Persist current values as the defaults</span>

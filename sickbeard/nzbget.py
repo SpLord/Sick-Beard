@@ -64,6 +64,12 @@ def sendNZB(nzb):
         if datetime.date.today() - curEp.airdate <= datetime.timedelta(days=7):
             addToTop = True
 
+        if curEp.show.downloadPriority <> 0:
+            if curEp.show.downloadPriority > 0:
+                addToTop = True
+            else:
+                addToTop = False
+        
     # if it's a normal result need to download the NZB content
     if nzb.resultType == "nzb":
         genProvider = GenericProvider("")

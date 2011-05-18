@@ -47,7 +47,7 @@ from common import DOWNLOADED, SNATCHED, SNATCHED_PROPER, ARCHIVED, IGNORED, UNA
 
 class TVShow(object):
 
-    def __init__ (self, tvdbid, lang=""):
+    def __init__ (self, tvdbid, lang="", downloadPriority = 0):
 
         self.tvdbid = tvdbid
 
@@ -67,6 +67,7 @@ class TVShow(object):
         self.paused = 0
         self.air_by_date = 0
         self.lang = lang
+        self.downloadPriority = int(downloadPriority)
 
         self.lock = threading.Lock()
         self._isDirGood = False
@@ -526,6 +527,8 @@ class TVShow(object):
             if self.lang == "":
                 self.lang = sqlResults[0]["lang"]
 
+            self.downloadPriority = int(sqlResults[0]["downloadPriority"])
+
 
     def loadFromTVDB(self, cache=True, tvapi=None, cachedSeason=None):
 
@@ -809,7 +812,8 @@ class TVShow(object):
                         "air_by_date": self.air_by_date,
                         "startyear": self.startyear,
                         "tvr_name": self.tvrname,
-                        "lang": self.lang
+                        "lang": self.lang,
+                        "downloadPriority": self.downloadPriority
                         }
 
         myDB.upsert("tv_shows", newValueDict, controlValueDict)
@@ -830,6 +834,8 @@ class TVShow(object):
         toReturn += "genre: " + self.genre + "\n"
         toReturn += "runtime: " + str(self.runtime) + "\n"
         toReturn += "quality: " + str(self.quality) + "\n"
+        toReturn += "lang: " + str(self.lang) + "\n"
+        toReturn += "downloadPriority: " + str(self.downloadPriority) + "\n"
         return toReturn
 
 

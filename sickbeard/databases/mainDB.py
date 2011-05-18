@@ -398,3 +398,10 @@ class FixAirByDateSetting(SetNzbTorrentSettings):
                 self.connection.action("UPDATE tv_shows SET air_by_date = ? WHERE tvdb_id = ?", [1, cur_show["tvdb_id"]])
         
         self.incDBVersion()
+
+class AddShowDownloadPriority (FixAirByDateSetting):
+    def test(self):
+        return self.hasColumn("tv_shows", "downloadPriority")
+
+    def execute(self):
+        self.addColumn("tv_shows", "downloadPriority", "NUMERIC", "0")

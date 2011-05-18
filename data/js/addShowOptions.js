@@ -1,5 +1,37 @@
 $(document).ready(function(){
 
+	$.getJSON(sbRoot+'/home/addShows/getDownloadPriorities', {}, function(data){
+        var resultStr = '';
+
+        if (data.results.length == 0) {
+            resultStr = '<option value="0" selected="selected">Normal</option>';
+        } else {
+            var current_priority = false;
+            
+            var keys = []
+            
+            $.each(data.results, function(index, obj){
+            	keys.push(index);
+            });
+            
+            keys.sort();
+            keys.reverse();
+            
+            for (i in keys){
+            	var key = keys[i]
+                if (key == 0) {
+                        selected = ' selected="selected"';
+                        current_priority = true;
+                }
+                else
+                        selected = '';
+
+                resultStr += '<option value="' + key + '"' + selected + '>' + data.results[key] + '</option>';
+            }
+        }
+        $('#prioritySelect').html(resultStr)
+  	});
+
     $('#saveDefaultsButton').click(function() {
         var anyQualArray = new Array();
         var bestQualArray = new Array();
@@ -17,7 +49,7 @@ $(document).ready(function(){
         });
     });
 
-    $('#statusSelect, #qualityPreset, #seasonFolders, #anyQualities, #bestQualities').change(function(){
+    $('#statusSelect, #qualityPreset, #seasonFolders, #anyQualities, #bestQualities, #prioritySelect').change(function(){
         $('#saveDefaultsButton').attr('disabled', false);
     });
 

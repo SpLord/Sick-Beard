@@ -1396,6 +1396,12 @@ class NewHomeAddShows:
         result.insert(0,'en')
 
         return json.dumps({'results': result})
+    
+    @cherrypy.expose
+    def getDownloadPriorities(self):
+        result = {-1 : 'Low',0: 'Normal',1: 'High',2: 'Force'}
+    
+        return json.dumps({'results': result})
 
     @cherrypy.expose
     def sanitizeFileName(self, name):
@@ -1545,7 +1551,7 @@ class NewHomeAddShows:
     @cherrypy.expose
     def addNewShow(self, whichSeries=None, tvdbLang="en", rootDir=None, defaultStatus=None,
                    anyQualities=None, bestQualities=None, seasonFolders=None, fullShowPath=None,
-                   other_shows=None, skipShow=None):
+                   other_shows=None, skipShow=None, downloadPriority=0):
         """
         Receive tvdb id, dir, and other options and create a show from them. If extra show dirs are
         provided then it forwards back to newShow, if not it goes to /home.
@@ -1621,8 +1627,10 @@ class NewHomeAddShows:
             bestQualities = [bestQualities]
         newQuality = Quality.combineQualities(map(int, anyQualities), map(int, bestQualities))
         
+        downloadPriority = int(downloadPriority)
+        
         # add the show
-        sickbeard.showQueueScheduler.action.addShow(tvdb_id, show_dir, int(defaultStatus), newQuality, seasonFolders, tvdbLang) #@UndefinedVariable
+        sickbeard.showQueueScheduler.action.addShow(tvdb_id, show_dir, int(defaultStatus), newQuality, seasonFolders, tvdbLang, downloadPriority) #@UndefinedVariable
         ui.notifications.message('Show added', 'Adding the specified show into '+show_dir)
 
         return finishAddShow()
@@ -2058,7 +2066,7 @@ class Home:
         return result['description'] if result else 'Episode not found.'
 
     @cherrypy.expose
-    def editShow(self, show=None, location=None, anyQualities=[], bestQualities=[], seasonfolders=None, paused=None, directCall=False, air_by_date=None, tvdbLang=None):
+    def editShow(self, show=None, location=None, anyQualities=[], bestQualities=[], seasonfolders=None, paused=None, directCall=False, air_by_date=None, tvdbLang=None, downloadPriority=None):
 
         if show == None:
             errString = "Invalid show ID: "+str(show)
@@ -2110,7 +2118,10 @@ class Home:
             do_update = False
         else:
             do_update = True
-
+            
+        if downloadPriority == None:
+            downloadPriority = 0
+        
         if type(anyQualities) != list:
             anyQualities = [anyQualities]
 
@@ -2132,6 +2143,7 @@ class Home:
             showObj.paused = paused
             showObj.air_by_date = air_by_date
             showObj.lang = tvdb_lang
+            showObj.downloadPriority = downloadPriority
 
             # if we change location clear the db of episodes, change it, write to db, and rescan
             if os.path.normpath(showObj._location) != os.path.normpath(location):
