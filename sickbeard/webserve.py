@@ -40,7 +40,8 @@ from sickbeard import search_queue
 from sickbeard import image_cache
 
 from sickbeard.providers import newznab
-from sickbeard.common import Quality, Overview, statusStrings
+from sickbeard.common import Quality, Overview, statusStrings,\
+    DOWNLOADPRIORITIES
 from sickbeard.common import SNATCHED, DOWNLOADED, SKIPPED, UNAIRED, IGNORED, ARCHIVED, WANTED
 from sickbeard.exceptions import ex
 
@@ -604,7 +605,7 @@ class ConfigGeneral:
         sickbeard.ROOT_DIRS = rootDirString
     
     @cherrypy.expose
-    def saveAddShowDefaults(self, defaultSeasonFolders, defaultStatus, anyQualities, bestQualities):
+    def saveAddShowDefaults(self, defaultSeasonFolders, defaultStatus, anyQualities, bestQualities, defaultDownloadPriority):
 
         if anyQualities:
             anyQualities = anyQualities.split(',')
@@ -627,6 +628,8 @@ class ConfigGeneral:
             defaultSeasonFolders = 0
 
         sickbeard.SEASON_FOLDERS_DEFAULT = int(defaultSeasonFolders)
+        
+        sickbeard.DOWNLOAD_PRIORITY_DEFAULT = int(defaultDownloadPriority)
 
     
     @cherrypy.expose
@@ -1399,7 +1402,7 @@ class NewHomeAddShows:
     
     @cherrypy.expose
     def getDownloadPriorities(self):
-        result = {-1 : 'Low',0: 'Normal',1: 'High',2: 'Force'}
+        result = DOWNLOADPRIORITIES
     
         return json.dumps({'results': result})
 
@@ -2066,7 +2069,7 @@ class Home:
         return result['description'] if result else 'Episode not found.'
 
     @cherrypy.expose
-    def editShow(self, show=None, location=None, anyQualities=[], bestQualities=[], seasonfolders=None, paused=None, directCall=False, air_by_date=None, tvdbLang=None, downloadPriority=None):
+    def editShow(self, show=None, location=None, anyQualities=[], bestQualities=[], seasonfolders=None, paused=None, directCall=False, air_by_date=None, tvdbLang=None, downloadPriority=0):
 
         if show == None:
             errString = "Invalid show ID: "+str(show)
@@ -2118,9 +2121,6 @@ class Home:
             do_update = False
         else:
             do_update = True
-            
-        if downloadPriority == None:
-            downloadPriority = 0
         
         if type(anyQualities) != list:
             anyQualities = [anyQualities]
@@ -2143,7 +2143,7 @@ class Home:
             showObj.paused = paused
             showObj.air_by_date = air_by_date
             showObj.lang = tvdb_lang
-            showObj.downloadPriority = downloadPriority
+            showObj.downloadPriority = int(downloadPriority)
 
             # if we change location clear the db of episodes, change it, write to db, and rescan
             if os.path.normpath(showObj._location) != os.path.normpath(location):
