@@ -269,8 +269,10 @@ class NewzbinProvider(generic.NZBProvider):
         return [searchStr]
 
     def _doSearch(self, searchStr, show=None):
-
-        data = self._getRSSData(searchStr.encode('utf-8'))
+        if show:
+            data = self._getRSSData(searchStr.encode('utf-8'),show.lang)
+        else:
+            data = self._getRSSData(searchStr.encode('utf-8'))
         
         item_list = []
 
@@ -300,32 +302,42 @@ class NewzbinProvider(generic.NZBProvider):
         return item_list
 
 
-    def _getRSSData(self, search=None):
-
+    def _getRSSData(self, search=None, language='en'):
+        language_numbers = {
+                            'en' : 4096,
+                            'de' : 4
+                            }
+        language_codes = {
+                          'en' : '~Eng',
+                          'de' : '~Ger'
+                          }
+        if language:
+            logger.log("Searching for language:"+language,logger.ERROR)
+        
         params = {
-                'searchaction': 'Search',
-                'fpn': 'p',
-                'category': 8,
-                'u_nfo_posts_only': 0,
-                'u_url_posts_only': 0,
-                'u_comment_posts_only': 0,
-                'u_show_passworded': 0,
-                'u_v3_retention': 0,
-                'ps_rb_video_format': 3082257,
-                'ps_rb_language': 4096,
-                'sort': 'date',
-                'order': 'desc',
-                'u_post_results_amt': 50,
-                'feed': 'rss',
-                'hauth': 1,
-        }
+            'searchaction': 'Search',
+            'fpn': 'p',
+            'category': 8,
+            'u_nfo_posts_only': 0,
+            'u_url_posts_only': 0,
+            'u_comment_posts_only': 0,
+            'u_show_passworded': 0,
+            'u_v3_retention': 0,
+            'ps_rb_video_format': 3082257,
+            'ps_rb_language': language_numbers[language],
+            'sort': 'date',
+            'order': 'desc',
+            'u_post_results_amt': 50,
+            'feed': 'rss',
+            'hauth': 1,
+            }
 
         if search:
             params['q'] = search + " AND "
         else:
             params['q'] = ''
 
-        params['q'] += 'Attr:Lang~Eng AND NOT Attr:VideoF=DVD'
+        params['q'] += 'Attr:Lang'+language_codes[language]+' AND NOT Attr:VideoF=DVD'
 
         url = self.url + "search/?%s" % urllib.urlencode(params)
         logger.log("Newzbin search URL: " + url, logger.DEBUG)
