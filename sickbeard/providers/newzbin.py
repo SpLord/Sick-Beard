@@ -302,7 +302,13 @@ class NewzbinProvider(generic.NZBProvider):
         return item_list
 
 
-    def _getRSSData(self, search=None, language='en'):
+    def _getRSSData(self, search=None, language=None):
+        if language:
+            logger.log("Searching for language:"+language,logger.DEBUG)
+        else:
+            language = "en"
+            logger.log("No language provided")
+            logger.log("Searchstring: "+search)
         language_numbers = {
                             'en' : 4096,
                             'de' : 4
@@ -311,8 +317,7 @@ class NewzbinProvider(generic.NZBProvider):
                           'en' : '~Eng',
                           'de' : '~Ger'
                           }
-        if language:
-            logger.log("Searching for language:"+language,logger.ERROR)
+        
         
         params = {
             'searchaction': 'Search',
@@ -353,12 +358,12 @@ class NewzbinCache(tvcache.TVCache):
         tvcache.TVCache.__init__(self, provider)
 
         # only poll Newzbin every 10 mins max
-        self.minTime = 10
+        self.minTime = 5
 
     def _getRSSData(self):
 
         data = self.provider._getRSSData()
-
+        logger.log("using the Newzbin-Cache",logger.ERROR)
         return data
 
     def _parseItem(self, item):
