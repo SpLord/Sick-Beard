@@ -307,11 +307,16 @@ class NewzbinProvider(generic.NZBProvider):
             logger.log("Searching for language:"+language,logger.DEBUG)
         else:
             language = "en"
-            logger.log("No language provided")
-            logger.log("Searchstring: "+search)
+            logger.log("No language provided",logger.DEBUG)
+            if search:
+                logger.log("Searchstring: "+search,logger.DEBUG)
+            else:
+                logger.log("No searchstring provided",logger.DEBUG)
         language_numbers = {
                             'en' : 4096,
-                            'de' : 4
+                            'de' : 4,
+                            'fr' : 2,
+                            'se' : 8
                             }
         language_codes = {
                           'en' : '~Eng',
